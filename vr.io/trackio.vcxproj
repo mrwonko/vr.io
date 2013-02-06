@@ -92,6 +92,7 @@
     <ClInclude Include="trackers\freespace_tracker.h" />
     <ClInclude Include="trackers\imotionsensor.h" />
     <ClInclude Include="utils\math.h" />
+    <ClInclude Include="vr_controller.h" />
     <ClInclude Include="vr_io.h" />
   </ItemGroup>
   <ItemGroup>

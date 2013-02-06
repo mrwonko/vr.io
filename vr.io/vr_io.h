@@ -1,48 +1,30 @@
-/*
-Author: Brant Lewis - October 2012 
+#ifndef _VRIO_H
+#define _VRIO_H
+
+#define VRIOERR_NO_DATA_SOURCE        2
+#define VRIOERR_SERVER_STOPPED        6
+#define VRIOERR_SERVER_DISCONNECTED 109
+#define VRIOERR_PIPE_IN_USE         231
+#define VRIOERR_CLIENT_DISCONNECTED 232
 
 
-#ifndef _TRACKIO_H
-#define _TRACKIO_H
+//todo: compilation in this proj should export, everywhere else import...
 
+//#if defined(VRIO_EXPORT)	// inside DLL
+#	define VRIO_API   __declspec(dllexport)
+//#else						// outside DLL define
+//#define VRIO_API   __declspec(dllimport)
+//#endif  
 
-#define TIOERR_NO_DATA_SOURCE        2
-#define TIOERR_SERVER_STOPPED        6
-#define TIOERR_SERVER_DISCONNECTED 109
-#define TIOERR_PIPE_IN_USE         231
-#define TIOERR_CLIENT_DISCONNECTED 232
+// Define exported interfaces
+struct IVRIOClient
+{
+	virtual int initialize( void ) = 0;
+	virtual int getOrientation( void ) = 0;
+	virtual void dispose( void ) = 0;
+};
 
-
-#ifdef _USRDLL
-	#define TIO_DLL_DECL __declspec(dllexport)
-#else
-	#define TIO_DLL_DECL
-#endif
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-// Tracker Data Source / Server Interface
-TIO_DLL_DECL int TIO_StartServer();
-TIO_DLL_DECL int TIO_AcceptClient();
-TIO_DLL_DECL int TIO_SendOrientation(float yaw, float pitch, float roll);
-TIO_DLL_DECL void TIO_StopServer();
-
-// Tracker Data Reader / Client Interface
-TIO_DLL_DECL int TIO_Connect();
-
-// TODO: need 
-TIO_DLL_DECL int TIO_GetOrientation(float* yaw, float* pitch, float* roll);
-TIO_DLL_DECL void TIO_Close();
-
-
-#if defined(__cplusplus)
-}
-#endif
+// Export the factory functions for each type...
+extern "C" VRIO_API IVRIOClient* _vrio_getInProcessClient();
 
 #endif
-
-
-
-*/
