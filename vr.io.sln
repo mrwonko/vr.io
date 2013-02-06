@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vr.io", "vr.io\trackio.vcxproj", "{FFF9D655-D9EE-4B52-B5F5-45867E80E173}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vr.io.test", "vr.io.test\trackiotest.vcxproj", "{2056F8EE-B420-48DE-A619-624BA7010D90}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFF9D655-D9EE-4B52-B5F5-45867E80E173}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FFF9D655-D9EE-4B52-B5F5-45867E80E173}.Debug|Win32.Build.0 = Debug|Win32
+		{FFF9D655-D9EE-4B52-B5F5-45867E80E173}.Release|Win32.ActiveCfg = Release|Win32
+		{FFF9D655-D9EE-4B52-B5F5-45867E80E173}.Release|Win32.Build.0 = Release|Win32
+		{2056F8EE-B420-48DE-A619-624BA7010D90}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2056F8EE-B420-48DE-A619-624BA7010D90}.Debug|Win32.Build.0 = Debug|Win32
+		{2056F8EE-B420-48DE-A619-624BA7010D90}.Release|Win32.ActiveCfg = Release|Win32
+		{2056F8EE-B420-48DE-A619-624BA7010D90}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,10 @@
+ipch/
+*.suo
+*.sdf
+**/*.vcxproj.user
+**/*.vcxproj.filters
+*.opensdf
+vr.io/Debug
+vr.io/Release
+vr.io.test/Debug
+vr.io.test/Release
