@@ -7,7 +7,7 @@
 #include <sys/timeb.h>
 
 static void hotplug_Callback(enum freespace_hotplugEvent evnt, FreespaceDeviceId id, void* params) {
-	MotionSensor* sensor = (MotionSensor*) params;
+	FreespaceTracker* sensor = (FreespaceTracker*) params;
 
 	if (evnt == FREESPACE_HOTPLUG_REMOVAL) { 
         sensor->_removeDevice(id);
@@ -92,15 +92,12 @@ unsigned MotionSensor_Thread(void* params)
 	return 0;
 }
 
-MotionSensor* _freespaceSensor;
+FreespaceTracker* _freespaceSensor;
 
-MotionSensor::MotionSensor() 
+FreespaceTracker::FreespaceTracker() 
 {
 	// Msg("Initializing freespace drivers\n");
 
-	struct freespace_message message;
-	int deviceCount; 
-	int rc;
 	_deviceCount = 0;
 	_threadState.quit = false;
 	
@@ -122,18 +119,13 @@ MotionSensor::MotionSensor()
 	
 	_freespaceSensor = this;
 	_initialized = true;
-
-	
 }
 
 
-MotionSensor::~MotionSensor() 
+FreespaceTracker::~FreespaceTracker() 
 {
 	_threadState.quit = true;	
-	int rc;
 	int i = 0;
-	struct freespace_message message;
-	
 	if (WaitForSingleObject(_threadState.handle, 1000)) {
 		//Msg("Freespace input thread shut down successfully...\n");
 	} else {
@@ -151,7 +143,7 @@ MotionSensor::~MotionSensor()
 	freespace_exit();
 }
 
-void MotionSensor::_initDevice(FreespaceDeviceId id) 
+void FreespaceTracker::_initDevice(FreespaceDeviceId id) 
 {
 	if (_deviceCount >= MAX_SENSORS) {
 		//Msg("Too many devices, can't add new freespace device %i\n", id);
@@ -191,12 +183,10 @@ void MotionSensor::_initDevice(FreespaceDeviceId id)
 	// Msg("Freespace sensor %i initialized (id: %i)", _deviceCount, id);
 }
 
-void MotionSensor::_removeDevice(FreespaceDeviceId id) {
+void FreespaceTracker::_removeDevice(FreespaceDeviceId id) {
     struct freespace_message message;
-    int rc;
-    int i;
 
-    // Remove the device from our list.
+	// Remove the device from our list.
     for (int i = 0; i < MAX_SENSORS; i++) {
         if (_threadState.deviceIds[i] == id) {
             _threadState.deviceIds[i] = -1;
@@ -226,7 +216,7 @@ void MotionSensor::_removeDevice(FreespaceDeviceId id) {
 	_deviceCount--;
 }
 
-void MotionSensor::getOrientation(int deviceIndex, QAngle& angle)
+void FreespaceTracker::getOrientation(int deviceIndex, QAngle& angle)
 {
 	//Msg("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
 	
@@ -240,12 +230,12 @@ void MotionSensor::getOrientation(int deviceIndex, QAngle& angle)
 	angle[YAW] = _threadState.yaw[deviceIndex];
 }
 
-bool MotionSensor::initialized()
+bool FreespaceTracker::initialized()
 {
 	return _initialized;
 }
 
-bool MotionSensor::hasOrientation()
+bool FreespaceTracker::hasOrientation()
 {
 	return true;
 }

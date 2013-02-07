@@ -1,4 +1,5 @@
 #include "../sensor_fusion.h"
+#include "freespace.h"
 
 #define MAX_SENSORS 2
 
@@ -23,12 +24,12 @@ struct InputThreadState
 	bool quit;
 };
 
-class MotionSensor {
+class FreespaceTracker {
 
 public:
 	
-	MotionSensor();
-	~MotionSensor();
+	FreespaceTracker();
+	~FreespaceTracker();
  
 	void	getOrientation( int deviceIndex, QAngle &angle );
 	bool	initialized();

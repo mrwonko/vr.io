@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClCompile Include="sensor_fusion.cpp" />
     <ClCompile Include="trackers\freespace_tracker.cpp" />
+    <ClCompile Include="vr_controller.cpp" />
     <ClCompile Include="vr_io.cpp" />
   </ItemGroup>
   <ItemGroup>
