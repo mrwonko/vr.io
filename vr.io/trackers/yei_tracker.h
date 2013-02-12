@@ -1,16 +1,13 @@
 #include "imotionsensor.h"
 #include "../sensor_fusion.h"
-#include "freespace.h"
 #include "../utils/thread_helpers.h"
 
-#define MAX_SENSORS 2
-
-class FreespaceTracker : IMotionSensor {
+class YEITracker : IMotionSensor {
 
 public:
 	
-	FreespaceTracker();
-	~FreespaceTracker();
+	YEITracker();
+	~YEITracker();
  
 	void	getOrientation( int deviceIndex, QAngle &angle );
 	bool	initialized();
@@ -18,10 +15,6 @@ public:
  	bool	hasOrientation();
  	int 	deviceCount() { return _deviceCount; }
 	
-	// These ideally would be protected
-	void	_initDevice(FreespaceDeviceId id);
-	void	_removeDevice(FreespaceDeviceId id);
-
 
 protected:
 	struct	InputThreadState _threadState;

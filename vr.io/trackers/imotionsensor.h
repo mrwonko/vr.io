@@ -1,26 +1,26 @@
-//Include interface enforement directives
-#include "CPPInterfaces2.h"
  
-/****************************************************
-*  This interface is used to integrate all 
-*  Valve movement controllers
-*
-*
-*  Each movement controller provides 6-DOF on
-*  a particular object (body part, other tracked object
-*
-*  This interface assumes that any implementing class
-*  will perform any required post processing to transform
-*  tracking results into a right handed coordinate system
-*  with +Z up -- with units in inches.
-*
-*****************************************************/
+#include "../utils/math_helpers.h"
+
+#define Interface class
+#define implements public
+
+#define DeclareInterface(name) __interface actual_##name {
+ 
+#define DeclareBasedInterface(name, base) \
+        __interface actual_##name \
+     : public actual_##base {
+ 
+#define EndInterface(name) };                \
+     Interface name : public actual_##name { \
+     public:                                 \
+        virtual ~name() {}                   \
+     };
+			
+
 #ifndef IMOTION_SENSOR_H
 #define IMOTION_SENSOR_H
 DeclareInterface(IMotionSensor)
-	QAngle	getOrientation();
-	bool	initialized();
- 	void	update();
- 	bool	hasOrientation();
+	//todo: fill out interface...
+	void	getOrientation( int deviceIndex, QAngle &angle );
 EndInterface(IMotionSensor)
-#endif //IMOVEMENT_CONTROLLER_H
+#endif 

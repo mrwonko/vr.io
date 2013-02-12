@@ -15,13 +15,14 @@
 #ifndef MahonyAHRS_h
 #define MahonyAHRS_h
 
-#include "utils/math.h"
+#include "utils/math_helpers.h"
 
 class SensorFusion {
 
 public:
 	
 	SensorFusion( void );
+	SensorFusion( float sampleFreq );
 	void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
 	void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
 	Quaternion& Read( void );
@@ -30,6 +31,7 @@ protected:
 
 	Quaternion q;
 	volatile float
+		fsSampleFreq,
 		twoKp, 
 		twoKi, 
 		integralFBx,

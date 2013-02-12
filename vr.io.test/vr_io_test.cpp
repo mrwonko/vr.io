@@ -1,6 +1,7 @@
 // trackiotest.cpp : A simple little console app to test out the vi.io library...
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "freespace/freespace.h"
 #undef VRIO_EXPORT
@@ -47,9 +48,10 @@ int main(int argc, char* argv[])
    {
 		client->think();
 		client->getOrientation(HEAD, message);
-		printf("Orientation retrieved... %f %f %f \n", message.pitch, message.yaw, message.roll);
+		system("cls");
+		printf("\n\nOrientation retrieved... pitch:%f yaw:%f roll:%f \n\n", message.pitch, message.yaw, message.roll);
 	   
-		Sleep(500);
+		Sleep(30);
    }
    
 	printf("\n");

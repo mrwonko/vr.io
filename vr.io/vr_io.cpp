@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "vr_io.h"
 #include "trackers\freespace_tracker.h"
-
+#include "trackers\yei_tracker.h"
 
 class InProcessClient : IVRIOClient
 {
@@ -18,8 +18,7 @@ public:
 
 protected:
 	FreespaceTracker* _freespace;
-
-
+	YEITracker* _yei;
 };
 
 
@@ -33,14 +32,16 @@ InProcessClient::~InProcessClient( void )
 	// TODO: ...
 }
 
-int InProcessClient::initialize( void )
+int InProcessClient::initialize( void ) 
 {
 	_freespace = new FreespaceTracker();
+	_yei = new YEITracker();
 	return 0;
 }
 
 void InProcessClient::dispose( void ) // this should really get 
 {
+	delete _yei;
 	delete _freespace;
 }
 
@@ -54,10 +55,34 @@ int InProcessClient::think( void )
 
 int InProcessClient::getOrientation( VRIO_Channel channel, VRIO_Message& message ) // this should really get 
 {
-	message.pitch += 1;
-	message.yaw += 4;
-	message.roll = 0;
+	QAngle angle;
 	
+	if (_yei->deviceCount() > 0)
+	{
+		_yei->getOrientation(channel, angle);
+		message.pitch = angle[PITCH];
+		message.yaw = angle[YAW];
+		message.roll = angle[ROLL];
+		
+		return 0;
+	}
+
+	// TODO: tons of cleanup....
+
+
+
+
+	if ( _freespace->deviceCount() <= 0 ) {
+		return 0;
+	}
+	
+	
+	_freespace->getOrientation(channel, angle);
+
+	message.pitch = angle[PITCH];
+	message.yaw = angle[YAW];
+	message.roll = angle[ROLL];
+
 	return 0;
 }
 

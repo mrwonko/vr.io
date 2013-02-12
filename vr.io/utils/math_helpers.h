@@ -11,8 +11,6 @@
 #define YAW 1
 #define ROLL 2
 
-
-
 // Angles, Vectors, etc
 
 class QAngle

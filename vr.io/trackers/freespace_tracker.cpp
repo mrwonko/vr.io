@@ -1,10 +1,13 @@
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <stdio.h>
+#include <math.h>
+#include <sys/timeb.h>
+
 #include "freespace.h"
 #include "freespace_tracker.h"
 #include "../sensor_fusion.h"
-#include <windows.h>
-#include <math.h>
-#include <sys/timeb.h>
+
 
 static void hotplug_Callback(enum freespace_hotplugEvent evnt, FreespaceDeviceId id, void* params) {
 	FreespaceTracker* sensor = (FreespaceTracker*) params;
@@ -16,7 +19,7 @@ static void hotplug_Callback(enum freespace_hotplugEvent evnt, FreespaceDeviceId
     }
 }
 
-unsigned MotionSensor_Thread(void* params)
+DWORD Freespace_Sensor_Thread(LPVOID params)
 {
 	InputThreadState* state = (InputThreadState*)params;
 	int rc;
@@ -96,8 +99,8 @@ FreespaceTracker* _freespaceSensor;
 
 FreespaceTracker::FreespaceTracker() 
 {
-	// Msg("Initializing freespace drivers\n");
-
+	printf("Initializing freespace drivers\n");
+	int rc = 0;
 	_deviceCount = 0;
 	_threadState.quit = false;
 	
@@ -107,16 +110,24 @@ FreespaceTracker::FreespaceTracker()
 	}
 				
 	if ( freespace_init() != FREESPACE_SUCCESS ) {
-	//	printf("Freespace initialization error. rc=%d\n", rc);
+		printf("Freespace initialization error. rc=%d\n", rc);
 		return;
 	}
 	
 	freespace_setDeviceHotplugCallback(hotplug_Callback, this);
 	freespace_perform();
+	DWORD threadId;
 
-	// TODO: CREATE THREAD CALL FIX >>>> 
-	// _threadState.handle = CreateThread(MotionSensor_Thread, &_threadState);
+	_threadState.handle = CreateThread(
+		NULL,
+		0, // Default stack size
+		(LPTHREAD_START_ROUTINE)&Freespace_Sensor_Thread, 
+		(LPVOID)&_threadState, 
+		0, 
+		&threadId);
 	
+	
+
 	_freespaceSensor = this;
 	_initialized = true;
 }
@@ -127,12 +138,13 @@ FreespaceTracker::~FreespaceTracker()
 	_threadState.quit = true;	
 	int i = 0;
 	if (WaitForSingleObject(_threadState.handle, 1000)) {
-		//Msg("Freespace input thread shut down successfully...\n");
+		printf("Freespace input thread shut down successfully...\n");
 	} else {
-		//Msg("Freespace input thread join timed out, releasing thread handle...\n");
-		// ReleaseThreadHandle(_threadState.handle);
+		printf("Freespace input thread join timed out, releasing thread handle...\n");
+		DWORD exitCode = 0;
+		TerminateThread(_threadState.handle, exitCode);
 	}
- //   Msg("Shutting down Freespace devices\n");
+    printf("Shutting down Freespace devices\n");
 
 	for (int idx=0; idx < MAX_SENSORS; idx++) {
 		if (_threadState.deviceIds[idx] >= 0) {
@@ -146,20 +158,20 @@ FreespaceTracker::~FreespaceTracker()
 void FreespaceTracker::_initDevice(FreespaceDeviceId id) 
 {
 	if (_deviceCount >= MAX_SENSORS) {
-		//Msg("Too many devices, can't add new freespace device %i\n", id);
+		printf("Too many devices, can't add new freespace device %i\n", id);
 		return;
     }
 
-	//Msg("Opening freespace device %i\n", id);
+	printf("Opening freespace device %i\n", id);
     int rc = freespace_openDevice(id);
     if (rc != 0) {
-    //  Msg("Error opening device.\n");
+    printf("Error opening device.\n");
         return;
     }
 
     rc = freespace_flush(id);
     if (rc != 0) {
-    //    Msg("Error flushing device.\n");
+    printf("Error flushing device.\n");
         return;
     }
 		
@@ -170,21 +182,20 @@ void FreespaceTracker::_initDevice(FreespaceDeviceId id)
 	message.dataModeControlV2Request.modeAndStatus |= 0 << 1;
     
     if (freespace_sendMessage(id, &message) != FREESPACE_SUCCESS) {
-    //    Msg("Freespace unable to send message: returned %d.\n", rc);
+    printf("Freespace unable to send message: returned %d.\n", rc);
 		return;
     }
-
-	//todo: freespace_setReceiveMessageCallback(id, receiveMessageCallback, NULL);
 
 	_threadState.deviceAngles[_deviceCount].Init();
 	_threadState.deviceIds[_deviceCount] = id;
     _deviceCount++;
 	
-	// Msg("Freespace sensor %i initialized (id: %i)", _deviceCount, id);
+	printf("Freespace sensor %i initialized (id: %i)", _deviceCount, id);
 }
 
 void FreespaceTracker::_removeDevice(FreespaceDeviceId id) {
     struct freespace_message message;
+	int rc = 0;
 
 	// Remove the device from our list.
     for (int i = 0; i < MAX_SENSORS; i++) {
@@ -194,7 +205,7 @@ void FreespaceTracker::_removeDevice(FreespaceDeviceId id) {
         }
     }
 	    
-   // Msg("%d> Sending message to enable mouse motion data.\n", id);
+	printf("%d> Sending message to enable mouse motion data.\n", id);
     memset(&message, 0, sizeof(message));
 
     if (freespace_isNewDevice(id)) {
@@ -206,19 +217,19 @@ void FreespaceTracker::_removeDevice(FreespaceDeviceId id) {
     }
     
     if (freespace_sendMessage(id, &message) != FREESPACE_SUCCESS) {
-    //   Msg("Could not send message: %d.\n", rc);
+    printf("Could not send message: %d.\n", rc);
     } else {
         freespace_flush(id);
 	}
 
-   // Msg("%d> Cleaning up freespace device...\n", id);
+   printf("%d> Cleaning up freespace device...\n", id);
     freespace_closeDevice(id);
 	_deviceCount--;
 }
 
 void FreespaceTracker::getOrientation(int deviceIndex, QAngle& angle)
 {
-	//Msg("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
+	printf("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
 	
 	if (_threadState.deviceIds[deviceIndex] == -1) {
 		angle.Init();

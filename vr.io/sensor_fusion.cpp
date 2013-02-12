@@ -19,14 +19,22 @@
 
 #include "sensor_fusion.h"
 
-static float fsSampleFreq = 250.f;
-
 #define twoKpDef	(2.0f * 0.5f)	// 2 * proportional gain
 #define twoKiDef	(2.0f * 0.0f)	// 2 * integral gain
 float invSqrt(float x);
 
 SensorFusion::SensorFusion()
 {
+	fsSampleFreq = 1000.f;
+	q.Init(1,0,0,0);
+	twoKp = twoKpDef;												// 2 * proportional gain (Kp)
+	twoKi = twoKiDef;												// 2 * integral gain (Ki)
+	integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f;	// integral error terms scaled by Ki
+}
+
+SensorFusion::SensorFusion( float sampleFreq )
+{
+	fsSampleFreq = sampleFreq;
 	q.Init(1,0,0,0);
 	twoKp = twoKpDef;												// 2 * proportional gain (Kp)
 	twoKi = twoKiDef;												// 2 * integral gain (Ki)
