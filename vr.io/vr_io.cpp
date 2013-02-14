@@ -14,6 +14,8 @@ public:
 	int initialize( void );
 	int think( void );
 	int getOrientation( VRIO_Channel channel, VRIO_Message& message );//todo: need another exported type for this... data includes positional and orientation data for now...
+	int getChannelCount( );
+
 	void dispose( void );
 
 protected:
@@ -84,6 +86,11 @@ int InProcessClient::getOrientation( VRIO_Channel channel, VRIO_Message& message
 	message.roll = angle[ROLL];
 
 	return 0;
+}
+
+int InProcessClient::getChannelCount( )
+{
+	return _freespace->deviceCount() + _yei->deviceCount();
 }
 
 
