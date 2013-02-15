@@ -12,6 +12,8 @@
 static void hotplug_Callback(enum freespace_hotplugEvent evnt, FreespaceDeviceId id, void* params) {
 	FreespaceTracker* sensor = (FreespaceTracker*) params;
 
+	printf("Freespace hot plug callback triggered");
+	
 	if (evnt == FREESPACE_HOTPLUG_REMOVAL) { 
         sensor->_removeDevice(id);
     } else if (evnt == FREESPACE_HOTPLUG_INSERTION) {
@@ -78,8 +80,7 @@ DWORD Freespace_Sensor_Thread(LPVOID params)
 			float roll = RADIANS_TO_DEGREES(atan2f(m23, m33)) + 180;
 			float pitch = RADIANS_TO_DEGREES(asinf(-m13));
 			float yaw = RADIANS_TO_DEGREES(atan2f(m12, m11));
-
-			
+						
 			state->deviceAngles[i][ROLL]  = roll;
 			state->deviceAngles[i][PITCH] = pitch;
 			state->deviceAngles[i][YAW]   = yaw;
@@ -95,18 +96,18 @@ DWORD Freespace_Sensor_Thread(LPVOID params)
 	return 0;
 }
 
-FreespaceTracker* _freespaceSensor;
-
 FreespaceTracker::FreespaceTracker() 
 {
 	printf("Initializing freespace drivers\n");
 	int rc = 0;
 	_deviceCount = 0;
+	_thinkCount = 0;
 	_threadState.quit = false;
 	
 	for (int i=0; i<MAX_SENSORS; i++) {
 		_threadState.deviceAngles[i].Init();
 		_threadState.deviceIds[i] = -1;
+		_threadState.sensorFusion[i].Init(250.f);
 	}
 				
 	if ( freespace_init() != FREESPACE_SUCCESS ) {
@@ -114,6 +115,7 @@ FreespaceTracker::FreespaceTracker()
 		return;
 	}
 	
+	printf("Freespace setting hot plug callback");
 	freespace_setDeviceHotplugCallback(hotplug_Callback, this);
 	freespace_perform();
 	DWORD threadId;
@@ -125,10 +127,7 @@ FreespaceTracker::FreespaceTracker()
 		(LPVOID)&_threadState, 
 		0, 
 		&threadId);
-	
-	
 
-	_freespaceSensor = this;
 	_initialized = true;
 }
 
@@ -229,7 +228,7 @@ void FreespaceTracker::_removeDevice(FreespaceDeviceId id) {
 
 void FreespaceTracker::getOrientation(int deviceIndex, QAngle& angle)
 {
-	printf("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
+	//printf("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
 	
 	if (_threadState.deviceIds[deviceIndex] == -1) {
 		angle.Init();
@@ -249,4 +248,14 @@ bool FreespaceTracker::initialized()
 bool FreespaceTracker::hasOrientation()
 {
 	return true;
+}
+
+void FreespaceTracker::think()
+{
+	_thinkCount = _thinkCount++ % 240;
+	if (_thinkCount == 0) 
+	{
+		printf("Checking for devices");
+		freespace_perform();
+	}
 }

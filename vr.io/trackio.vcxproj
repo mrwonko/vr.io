@@ -86,7 +86,6 @@
     <ClCompile Include="sensor_fusion.cpp" />
     <ClCompile Include="trackers\freespace_tracker.cpp" />
     <ClCompile Include="trackers\yei_tracker.cpp" />
-    <ClCompile Include="vr_controller.cpp" />
     <ClCompile Include="vr_io.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -96,7 +95,6 @@
     <ClInclude Include="trackers\yei_tracker.h" />
     <ClInclude Include="utils\math_helpers.h" />
     <ClInclude Include="utils\thread_helpers.h" />
-    <ClInclude Include="vr_controller.h" />
     <ClInclude Include="vr_io.h" />
   </ItemGroup>
   <ItemGroup>

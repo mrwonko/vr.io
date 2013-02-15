@@ -22,5 +22,6 @@
 DeclareInterface(IMotionSensor)
 	//todo: fill out interface...
 	void	getOrientation( int deviceIndex, QAngle &angle );
+	void	think( void );
 EndInterface(IMotionSensor)
 #endif 

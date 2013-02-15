@@ -50,6 +50,8 @@ void InProcessClient::dispose( void ) // this should really get
 int InProcessClient::think( void )
 {
 	// TODO: initialize everything.... 
+	_freespace->think();
+	_yei->think();
 	return 0;
 
 	// read out and precache each of the active sensors...
@@ -59,32 +61,29 @@ int InProcessClient::getOrientation( VRIO_Channel channel, VRIO_Message& message
 {
 	QAngle angle;
 	
-	if (_yei->deviceCount() > 0)
+	if ( getChannelCount() <= 0 )
 	{
-		_yei->getOrientation(channel, angle);
-		message.pitch = angle[PITCH];
-		message.yaw = angle[YAW];
-		message.roll = angle[ROLL];
-		
 		return 0;
 	}
 
-	// TODO: tons of cleanup....
+	// configuration will be based on lua calls for channel requests that'll map to device data pulls and any additional formatting that might
+	// be necessary
 
-
-
-
-	if ( _freespace->deviceCount() <= 0 ) {
-		return 0;
+	if ( (channel == HEAD && _freespace->deviceCount() > 0 ) 
+	  || ( _freespace->deviceCount() > 1 && _yei->deviceCount() == 0 )	)
+	{
+		_freespace->getOrientation(channel, angle);
 	}
 	
-	
-	_freespace->getOrientation(channel, angle);
+	if ( channel == WEAPON && _yei->deviceCount() > 0 )
+	{
+		_yei->getOrientation(0, angle);
+	}
 
 	message.pitch = angle[PITCH];
 	message.yaw = angle[YAW];
 	message.roll = angle[ROLL];
-
+	
 	return 0;
 }
 
@@ -92,7 +91,6 @@ int InProcessClient::getChannelCount( )
 {
 	return _freespace->deviceCount() + _yei->deviceCount();
 }
-
 
 
 // Factory function definitions...

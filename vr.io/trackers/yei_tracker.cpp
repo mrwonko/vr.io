@@ -23,7 +23,11 @@ DWORD YEI_Sensor_Thread(LPVOID params)
 	float raw_data[9];
 	SensorData data;
 	TSS_Quaternion quat;
-	
+
+	// use full kalman filtering for now
+	setFilterMode(state->deviceIds[1], 1);
+	setJoystickEnabled(state->deviceIds[1], false);
+
 	unsigned int counter = 0;
 
 	int i = 0;
@@ -41,6 +45,9 @@ DWORD YEI_Sensor_Thread(LPVOID params)
 		// or maybe not even necessary to use raw data.. err = getAllSensorsRawf9(state->deviceIds[i], raw_data);
 		//err= getFiltTaredOrientQuat(state->deviceIds[i], &quat);
 		err=getFiltOrientEuler(state->deviceIds[i], &euler);
+
+		
+
 		if( !err ){
 		
 			// TODO: for maximum performance I should be able to process the raw data... but not at 10:30 on a work night...
@@ -79,7 +86,7 @@ DWORD YEI_Sensor_Thread(LPVOID params)
 			float pitch = RADIANS_TO_DEGREES(euler.x);
 			float yaw = RADIANS_TO_DEGREES(euler.y);
 			float roll = RADIANS_TO_DEGREES(euler.z);
-						
+			
 			state->deviceAngles[i][ROLL]  = roll;
 			state->deviceAngles[i][PITCH] = pitch;
 			state->deviceAngles[i][YAW]   = yaw;
@@ -87,6 +94,8 @@ DWORD YEI_Sensor_Thread(LPVOID params)
 			state->pitch[i] = pitch;
 			state->roll[i] = roll;
 			state->yaw[i] = yaw;
+
+			
 
 			state->sampleCount[i]++;
 		}
@@ -106,9 +115,10 @@ YEITracker::YEITracker()
 	int rc = 0;
 	_deviceCount = 0;
 	_threadState.Init();
-		
+			
 	for (int i=0; i<MAX_YEI_SENSORS; i++) {
 		_threadState.deviceAngles[i].Init();
+		_threadState.sensorFusion[i].Init(1000.f);
 	}
 
 	// TODO: initialize YEI Device...
@@ -149,7 +159,6 @@ YEITracker::YEITracker()
 	_initialized = true;
 }
 
-
 YEITracker::~YEITracker() 
 {
 	_threadState.quit = true;	
@@ -177,16 +186,14 @@ YEITracker::~YEITracker()
 
 void YEITracker::getOrientation(int deviceIndex, QAngle& angle)
 {
-	printf("Device Orientation %i (%i samples, %i errors, %i returned)\n", deviceIndex, _threadState.sampleCount[deviceIndex], _threadState.errorCount[deviceIndex], _threadState.lastReturnCode[deviceIndex]);
-	
 	if (_threadState.deviceIds[deviceIndex] == -1) {
 		angle.Init();
 		return;
 	}
 
 	angle[PITCH] = _threadState.pitch[deviceIndex];
-	angle[ROLL] = _threadState.roll[deviceIndex];
-	angle[YAW] = _threadState.yaw[deviceIndex];
+	angle[ROLL] = _threadState.roll[deviceIndex]*-1;
+	angle[YAW] = _threadState.yaw[deviceIndex]*-1;
 }
 
 bool YEITracker::initialized()
@@ -197,4 +204,9 @@ bool YEITracker::initialized()
 bool YEITracker::hasOrientation()
 {
 	return true;
+}
+
+void YEITracker::think()
+{
+	//nothing to do here yet
 }
