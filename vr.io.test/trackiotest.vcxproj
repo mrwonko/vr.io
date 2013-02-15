@@ -83,10 +83,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="mongoose.c" />
     <ClCompile Include="vr_io_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Debug\vr.io.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mongoose.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
