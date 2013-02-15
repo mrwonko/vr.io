@@ -16,11 +16,6 @@ bool stopped = false;
 IVRIOClient* client;
 struct mg_context *ctx;
 
-void PrintHelp()
-{
-	printf("trackiotest [recv|send]\n\n");
-}
-
 BOOL WINAPI OnCtrlC(DWORD type)
 {
 	// For all control events, shut down this application
@@ -58,11 +53,6 @@ static int begin_request_handler(struct mg_connection *conn) {
 
 int main(int argc, char* argv[])
 {
-	if (argc < 2) {
-		PrintHelp();
-		return 1;
-	}
-
 	SetConsoleCtrlHandler(OnCtrlC, TRUE);
 
 	struct mg_callbacks callbacks;
@@ -84,12 +74,12 @@ int main(int argc, char* argv[])
 		system("cls");
 		client->getOrientation(HEAD, message);
 		
-		printf("\n\n%i> HEAD Orientation pitch:%f yaw:%f roll:%f \n", i, message.pitch, message.yaw, message.roll);
+		printf("\n\n> HEAD Orientation pitch:%f yaw:%f roll:%f \n", message.pitch, message.yaw, message.roll);
 		
 		if ( client->getChannelCount() > 1 )
 		{
 			client->getOrientation(WEAPON, message);
-			printf("\n\n%i> WEAPON Orientation pitch:%f yaw:%f roll:%f \n", i, message.pitch, message.yaw, message.roll);
+			printf("\n\n> WEAPON Orientation pitch:%f yaw:%f roll:%f \n", message.pitch, message.yaw, message.roll);
 			Sleep(5);
 		}
 
