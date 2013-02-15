@@ -80,14 +80,22 @@ int main(int argc, char* argv[])
 	while (!stopped)
 	{
 		client->think();
-		client->getOrientation(HEAD, message);
+		
 		system("cls");
-		printf("\n\nOrientation retrieved... pitch:%f yaw:%f roll:%f \n\n", message.pitch, message.yaw, message.roll);
-	   
+		client->getOrientation(HEAD, message);
+		
+		printf("\n\n%i> HEAD Orientation pitch:%f yaw:%f roll:%f \n", i, message.pitch, message.yaw, message.roll);
+		
+		if ( client->getChannelCount() > 1 )
+		{
+			client->getOrientation(WEAPON, message);
+			printf("\n\n%i> WEAPON Orientation pitch:%f yaw:%f roll:%f \n", i, message.pitch, message.yaw, message.roll);
+			Sleep(5);
+		}
+
 		Sleep(30);
 	}
    
 	printf("\n");
 	return 0; 
 }
-

@@ -1,14 +1,7 @@
 #ifndef _VRIO_H
 #define _VRIO_H
 
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-#define VRIOERR_NO_DATA_SOURCE        2
-#define VRIOERR_SERVER_STOPPED        6
-#define VRIOERR_SERVER_DISCONNECTED 109
-#define VRIOERR_PIPE_IN_USE         231
-#define VRIOERR_CLIENT_DISCONNECTED 232
 
 enum VRIO_Channel
 {
@@ -52,6 +45,7 @@ struct VRIO_Message
 		y = 0;
 		z = 0;
 	}
+
 };
 
 
@@ -61,6 +55,7 @@ struct IVRIOClient
 	virtual int initialize( void ) = 0;
 	virtual int think( void ) = 0;
 	virtual int getOrientation( VRIO_Channel, VRIO_Message& message ) = 0;
+	virtual int getChannelCount( ) = 0;
 	virtual void dispose( void ) = 0;
 };
 

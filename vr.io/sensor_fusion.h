@@ -23,6 +23,9 @@ public:
 	
 	SensorFusion( void );
 	SensorFusion( float sampleFreq );
+
+	void Init( float sampleFreq );
+
 	void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
 	void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
 	Quaternion& Read( void );

@@ -14,8 +14,6 @@
 //
 //=====================================================================================================
 
-//---------------------------------------------------------------------------------------------------
-// Header files
 
 #include "sensor_fusion.h"
 
@@ -25,14 +23,15 @@ float invSqrt(float x);
 
 SensorFusion::SensorFusion()
 {
-	fsSampleFreq = 1000.f;
-	q.Init(1,0,0,0);
-	twoKp = twoKpDef;												// 2 * proportional gain (Kp)
-	twoKi = twoKiDef;												// 2 * integral gain (Ki)
-	integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f;	// integral error terms scaled by Ki
+	Init(250.f);
 }
 
 SensorFusion::SensorFusion( float sampleFreq )
+{
+	Init(sampleFreq);
+}
+
+void SensorFusion::Init( float sampleFreq )
 {
 	fsSampleFreq = sampleFreq;
 	q.Init(1,0,0,0);

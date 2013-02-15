@@ -11,7 +11,7 @@ public:
  
 	void	getOrientation( int deviceIndex, QAngle &angle );
 	bool	initialized();
-	void	update() {};
+	void	think();
  	bool	hasOrientation();
  	int 	deviceCount() { return _deviceCount; }
 	
