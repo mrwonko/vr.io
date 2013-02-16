@@ -25,51 +25,29 @@ DWORD YEI_Sensor_Thread(LPVOID params)
 	TSS_Quaternion quat;
 
 	// use full kalman filtering for now
-	setFilterMode(state->deviceIds[1], 1);
+	setFilterMode(state->deviceIds[1], 0);
 	setJoystickEnabled(state->deviceIds[1], false);
 
-	unsigned int counter = 0;
+	int counter = 0;
 
 	int i = 0;
 	while (!state->quit)
 	{
 		i = ++i % MAX_SENSORS;
 		id = state->deviceIds[i];
-				
+		
 		if (id < 0)
 			continue;
+						
+		err = getAllSensorsNormalizedf9(state->deviceIds[i], raw_data);
 		
-		//lots of options here....
-		//err = getAllSensorsNormalizedf9(state->deviceIds[i], raw_data);
-		//todo: you can poll for the actual update rate to tweak the sensor fusion algorithm
-		// or maybe not even necessary to use raw data.. err = getAllSensorsRawf9(state->deviceIds[i], raw_data);
-		//err= getFiltTaredOrientQuat(state->deviceIds[i], &quat);
-		err=getFiltOrientEuler(state->deviceIds[i], &euler);
-
-		
-
 		if( !err ){
-		
-			// TODO: for maximum performance I should be able to process the raw data... but not at 10:30 on a work night...
-			/*
-			
 			state->sensorFusion[i].MahonyAHRSupdate(
 													raw_data[0], raw_data[1], raw_data[2],  // gyro data
-													raw_data[0], raw_data[1], raw_data[2],  // accelerometer
-													raw_data[0], raw_data[1], raw_data[2]); // magnetometer
+													raw_data[3], raw_data[4], raw_data[5],  // accelerometer
+													raw_data[6], raw_data[7], raw_data[8]); // magnetometer
 		
-
-			state->sensorFusion[i].MahonyAHRSupdateIMU(
-													raw_data[0], raw_data[1], raw_data[2],  // gyro data
-													raw_data[0], raw_data[1], raw_data[2]);  // accelerometer
-												
-			
-			q.w = quat.w;
-			q.x = quat.x;
-			q.y = quat.y;
-			q.z = quat.z;			
-
-			//q = state->sensorFusion[i].Read();
+			q = state->sensorFusion[i].Read();
 			
 			// convert quaternion to euler angles
 			float m11 = (2.0f * q[0] * q[0]) + (2.0f * q[1] * q[1]) - 1.0f;
@@ -81,11 +59,6 @@ DWORD YEI_Sensor_Thread(LPVOID params)
 			float roll = RADIANS_TO_DEGREES(atan2f(m23, m33)) + 180;
 			float pitch = RADIANS_TO_DEGREES(asinf(-m13));
 			float yaw = RADIANS_TO_DEGREES(atan2f(m12, m11));
-			*/
-			
-			float pitch = RADIANS_TO_DEGREES(euler.x);
-			float yaw = RADIANS_TO_DEGREES(euler.y);
-			float roll = RADIANS_TO_DEGREES(euler.z);
 			
 			state->deviceAngles[i][ROLL]  = roll;
 			state->deviceAngles[i][PITCH] = pitch;
@@ -94,9 +67,7 @@ DWORD YEI_Sensor_Thread(LPVOID params)
 			state->pitch[i] = pitch;
 			state->roll[i] = roll;
 			state->yaw[i] = yaw;
-
 			
-
 			state->sampleCount[i]++;
 		}
 		else{
@@ -192,8 +163,8 @@ void YEITracker::getOrientation(int deviceIndex, QAngle& angle)
 	}
 
 	angle[PITCH] = _threadState.pitch[deviceIndex];
-	angle[ROLL] = _threadState.roll[deviceIndex]*-1;
-	angle[YAW] = _threadState.yaw[deviceIndex]*-1;
+	angle[ROLL] = _threadState.roll[deviceIndex];
+	angle[YAW] = _threadState.yaw[deviceIndex];
 }
 
 bool YEITracker::initialized()
